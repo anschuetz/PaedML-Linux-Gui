@@ -1,7 +1,7 @@
 
 ######## GUI für Vbox-Schulungsumgebung für paedml-linux ################
 ######## Jesko Anschütz 2022   Lizenz: CC BY-SA 4.0 #####################
-######## v0.9.1 # 22.06.2022 ############################################
+######## v0.9.1 # 22.06.2022 committed ######### ########################
 
 ##### Importieren von Funktionen für "Consolen-Magic" (Fenster ausblenden...)
 Add-Type -Name Window -Namespace Console -MemberDefinition '
