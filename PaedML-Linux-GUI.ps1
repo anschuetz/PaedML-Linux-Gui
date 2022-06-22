@@ -21,7 +21,7 @@ function paedml {
     $main_form.Width = 700
     $main_form.Height = 400
     $main_form.AutoSize = $true
-    $bgImage = [system.drawing.image]::FromFile(".\gui\paedml-700.png")
+    $bgImage = [system.drawing.image]::FromFile(".\gui\logo.png")
     $main_form.BackgroundImage = $bgImage
     $main_form.BackgroundImageLayout = "None"   # None, Tile, Center, Stretch, Zoom
     $main_form.TopMost = $True
@@ -253,6 +253,10 @@ function shutdownVMs {
 	# VMs herunterfahren
 	Write-Host "Maschinen werden gestoppt" -ForegroundColor Green
     foreach($maschine in $maschinen) {
+    & $VBoxManage controlvm "$maschine" acpipowerbutton
+    Write-Host ":: $maschine FERTIG"
+    }
+    foreach($maschine in $leeremaschinen) {
     & $VBoxManage controlvm "$maschine" acpipowerbutton
     Write-Host ":: $maschine FERTIG"
     }
