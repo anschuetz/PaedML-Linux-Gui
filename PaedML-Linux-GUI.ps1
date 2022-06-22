@@ -33,14 +33,13 @@ function paedml {
     # Yes: Start
     # Retry: Reset
 
-    $importButton = knopf -name 'import' -breite 140 -hoehe 140 -xPos 40 -yPos 200 -png 'gui\import128.png' -bgcolor 'white'
+    $importButton = knopf -name 'VMs importieren' -breite 140 -hoehe 140 -xPos 40 -yPos 200 -png 'gui\import.png' -bgcolor 'white'
     $importButton.Add_Click( { $main_form.DialogResult = "OK"; $main_form.Close } )
-
-    $startButton = knopf -name 'import' -breite 140 -hoehe 140 -xPos 200 -yPos 200 -png 'gui\start.png' -bgcolor 'white'
+    $startButton = knopf -name 'Server und AdminVM starten' -breite 140 -hoehe 140 -xPos 200 -yPos 200 -png 'gui\start.png' -bgcolor 'white'
     $startButton.Add_Click( { $main_form.DialogResult = "Yes"; $main_form.Close } )
-    $stopButton = knopf -name 'import' -breite 140 -hoehe 140 -xPos 360 -yPos 200 -png 'gui\stop.png' -bgcolor 'white'
+    $stopButton = knopf -name 'Alle VMs herunterfahren' -breite 140 -hoehe 140 -xPos 360 -yPos 200 -png 'gui\stop.png' -bgcolor 'white'
     $stopButton.Add_Click( { $main_form.DialogResult = "Abort"; $main_form.Close } )
-    $resetButton = knopf -name 'import' -breite 140 -hoehe 140 -xPos 520 -yPos 200 -png 'gui\reset.png' -bgcolor 'white'
+    $resetButton = knopf -name 'Komplette Umgebung zurücksetzen' -breite 140 -hoehe 140 -xPos 520 -yPos 200 -png 'gui\reset.png' -bgcolor 'white'
     $resetButton.Add_Click( { $main_form.DialogResult = "Retry"; $main_form.Close } )
     
     $main_form.Controls.Add($importButton)
@@ -108,7 +107,8 @@ function knopf ([String]$name, [int]$breite, [int]$hoehe, [int]$xPos, [int]$yPos
   $tmpbutton.Location = New-Object System.Drawing.Size( $xPos, $yPos )
   $tmpbutton.Size = New-Object System.Drawing.Size($breite, $hoehe)
   $tmpbutton.BackColor = $bgcolor
-  $tmpbutton.Image = [System.Drawing.Image]::FromFile($png)
+  
+  If (Test-Path $png ) {$tmpbutton.Image = [System.Drawing.Image]::FromFile($png)} else { $tmpbutton.Text = $name }
 
   return $tmpbutton
 }
