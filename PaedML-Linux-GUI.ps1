@@ -1,9 +1,9 @@
 
-######## GUI fÃ¼r Vbox-Schulungsumgebung fÃ¼r paedml-linux ################################################
-######## Jesko AnschÃ¼tz 2022   Lizenz: GPL 3 (http://www.gnu.org/licenses/gpl.html) #####################
+######## GUI für Vbox-Schulungsumgebung fÃ¼r paedml-linux ################################################
+######## Jesko Anschütz 2022   Lizenz: GPL 3 (http://www.gnu.org/licenses/gpl.html) #####################
 ######## v0.9.1 # 22.06.2022 ############################################################################
 
-##### Importieren von Funktionen fÃ¼r "Consolen-Magic" (Fenster ausblenden...)
+##### Importieren von Funktionen für "Consolen-Magic" (Fenster ausblenden...)
 Add-Type -Name Window -Namespace Console -MemberDefinition '
 [DllImport("Kernel32.dll")]
 public static extern IntPtr GetConsoleWindow();
@@ -67,7 +67,7 @@ function main {
 
 }
 
-######### Hier die FunktionalitÃ¤t: ##########
+######### Hier die Funktionalität: ##########
 
 
 #Pfad zu VBoxManage.exe und VirtualBox.exe
@@ -77,14 +77,14 @@ $maschinen_basefolder = "V:\LFB-Netze\Linux\paedml7x"
 # bei direktstart ist das die bessere Wahl, bei EXE klappt das nicht.
 # $maschinen_basefolder = $PSScriptRoot
 
-# Namen der Maschinen: Die mÃ¼ssen in einem Ordner mit eigenem Namen liegen und die HDD MUSS name-disk-1.vdi sein!
+# Namen der Maschinen: Die müssen in einem Ordner mit eigenem Namen liegen und die HDD MUSS name-disk-1.vdi sein!
 $maschinen = @("firewall", "server", "opsi-server", "adminvm", "win10-client-1", "win10-client-2")
 
-# Namen der leeren Maschinen. Diese MÃœSSEN win10-client-XX heiÃŸen!!! (--> Mac-Adresse wird abgeleitet...)
+# Namen der leeren Maschinen. Diese MÜSSEN win10-client-X heißen!!! (--> Mac-Adresse wird abgeleitet...)
 $leeremaschinen =@("win10-client-3", "win10-client-4", "win10-client-5", "win10-client-6", "win10-client-7")
 #$maschinen = @("firewall")
 
-# Hier mÃ¼ssen alle Maschinen rein, die NICHT LsiLogic als Controller haben.
+# Hier müssen alle Maschinen rein, die NICHT LsiLogic als Controller haben.
 $HDDcontrollers= @{}
 $HDDcontrollers.Add("win10-client-1","SATA")
 $HDDcontrollers.Add("win10-client-2","SATA")
@@ -192,7 +192,7 @@ function registerMasterVMs {
         # Registrieren in der Verwaltungskonsole
 	    & $VBoxManage registervm "$maschinen_basefolder\$maschine\$maschine.vbox" # 2> $null
 
-        # Nachsehen, ob fÃ¼r die maschine ein abweichender HDD-Controller definiert wurde.
+        # Nachsehen, ob für die maschine ein abweichender HDD-Controller definiert wurde.
         $hddcontroller=$HDDcontrollers.get_Item($maschine)
         # Setzen des Controllers:
         if ( $hddcontroller -eq $null ) { $hddcontroller = "LsiLogic" } else {$hddcontroller = $HDDcontrollers.get_Item($maschine) } 
@@ -200,7 +200,7 @@ function registerMasterVMs {
         & $VboxManage storageattach "$maschine" --storagectl "$hddcontroller" --device 0 --port 0 --type hdd --medium "$maschinen_basefolder/$maschine/$maschine-disk1.vdi" 
         Write-Host ":: $machine fertig" -ForegroundColor Green
     }
-    # OPSI zusÃ¤tzlich Platte 2
+    # OPSI zusätzlich Platte 2
     Write-Host ":: zweite Platte von Opsi-Server..." -ForegroundColor Green
     
     $maschine = "opsi-server"
@@ -234,7 +234,7 @@ function VMunregister {
 
 function startVMs {
 	# starte vm
-    $timeServerStart = 60 # wie lange braucht der Server zum Starten, bevor die Clients gestartet werden dÃ¼rfen?
+    $timeServerStart = 60 # wie lange braucht der Server zum Starten, bevor die Clients gestartet werden dürfen?
 	Write-Host "VMs werden gestartet" -ForegroundColor Green
     Write-Host ":: firewall" -ForegroundColor Green
 	& $VBoxManage startvm "firewall"
@@ -246,7 +246,7 @@ function startVMs {
 	Start-Sleep -s $timeServerStart
     Write-Host ":: adminvm" -ForegroundColor Green
     & $VBoxManage startvm "adminvm"
-    Write-Host "Die Clients mÃ¼ssen bei Bedarf von Hand gestartet werden..." -ForegroundColor Green
+    Write-Host "Die Clients müssen bei Bedarf von Hand gestartet werden..." -ForegroundColor Green
 }
 
 function shutdownVMs {
@@ -261,18 +261,18 @@ function shutdownVMs {
 function resetVMs {
     Write-Host "Maschinen zurÃ¼cksetzen" -ForegroundColor Green
     foreach($maschine in $maschinen) {
-	    # Snapshot zurÃ¼cksetzen auf den aktuellen
-        Write-Host ":: $maschine wird zurÃ¼ckgesetzt..."
+	    # Snapshot zurücksetzen auf den aktuellen
+        Write-Host ":: $maschine wird zurückgesetzt..."
         & $VBoxManage controlvm $maschine poweroff 2> $null
 	    & $VBoxManage snapshot "$maschine" restore "Auslieferungszustand" 2> $null
-        Write-Host ":: $maschine zurÃ¼ckgesetzt"
+        Write-Host ":: $maschine zurückgesetzt"
     }
     foreach($maschine in $leeremaschinen) {
 	    # Snapshot zurÃ¼cksetzen auf den aktuellen
-        Write-Host ":: $maschine wird zurÃ¼ckgesetzt..."
+        Write-Host ":: $maschine wird zurückgesetzt..."
         & $VBoxManage controlvm $maschine poweroff 2> $null
 	    & $VBoxManage snapshot "$maschine" restore "Auslieferungszustand" 2> $null
-        Write-Host ":: $maschine zurÃ¼ckgesetzt"
+        Write-Host ":: $maschine zurückgesetzt"
     }
 
 }
