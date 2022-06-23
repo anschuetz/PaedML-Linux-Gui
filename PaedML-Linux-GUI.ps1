@@ -1,7 +1,7 @@
 
 ######## GUI für Vbox-Schulungsumgebung fÃ¼r paedml-linux ################################################
 ######## Jesko Anschütz 2022   Lizenz: GPL 3 (http://www.gnu.org/licenses/gpl.html) #####################
-######## v0.9.1 # 22.06.2022 ############################################################################
+######## v0.9.2 # 22.06.2022 ############################################################################
 
 ##### Importieren von Funktionen für "Consolen-Magic" (Fenster ausblenden...)
 Add-Type -Name Window -Namespace Console -MemberDefinition '
@@ -14,6 +14,9 @@ public static extern bool ShowWindow(IntPtr hWnd, Int32 nCmdShow);
 
 ##### Erstmal das "Design"...
 
+$BASISVERZEICHNIS="V:\LFB-Netze\Linux\paedml7x"
+$LEEREMASCHINEN_BASISVERZEICHNIS="V:\LFB-Netze\Linux\leeremaschinen"
+
 function paedml {
     Add-Type -assembly System.Windows.Forms
     $main_form = New-Object System.Windows.Forms.Form
@@ -21,7 +24,7 @@ function paedml {
     $main_form.Width = 700
     $main_form.Height = 400
     $main_form.AutoSize = $true
-    $bgImage = [system.drawing.image]::FromFile(".\gui\logo.png")
+    $bgImage = [system.drawing.image]::FromFile("$BASISVERZEICHNIS\gui\logo.png")
     $main_form.BackgroundImage = $bgImage
     $main_form.BackgroundImageLayout = "None"   # None, Tile, Center, Stretch, Zoom
     $main_form.TopMost = $True
@@ -31,15 +34,15 @@ function paedml {
     # Cancel - Ende
     # Abort: Stop
     # Yes: Start
-    # Retry: Reset
+    # Retry: Rese
 
-    $importButton = knopf -name 'VMs importieren' -breite 140 -hoehe 140 -xPos 40 -yPos 200 -png 'gui\import.png' -bgcolor 'white'
+    $importButton = knopf -name 'VMs importieren' -breite 140 -hoehe 140 -xPos 40 -yPos 200 -png "$BASISVERZEICHNIS\gui\import.png" -bgcolor 'white'
     $importButton.Add_Click( { $main_form.DialogResult = "OK"; $main_form.Close } )
-    $startButton = knopf -name 'Server und AdminVM starten' -breite 140 -hoehe 140 -xPos 200 -yPos 200 -png 'gui\start.png' -bgcolor 'white'
+    $startButton = knopf -name 'Server und AdminVM starten' -breite 140 -hoehe 140 -xPos 200 -yPos 200 -png "$BASISVERZEICHNIS\gui\start.png" -bgcolor 'white'
     $startButton.Add_Click( { $main_form.DialogResult = "Yes"; $main_form.Close } )
-    $stopButton = knopf -name 'Alle VMs herunterfahren' -breite 140 -hoehe 140 -xPos 360 -yPos 200 -png 'gui\stop.png' -bgcolor 'white'
+    $stopButton = knopf -name 'Alle VMs herunterfahren' -breite 140 -hoehe 140 -xPos 360 -yPos 200 -png "$BASISVERZEICHNIS\gui\stop.png" -bgcolor 'white'
     $stopButton.Add_Click( { $main_form.DialogResult = "Abort"; $main_form.Close } )
-    $resetButton = knopf -name 'Komplette Umgebung zurücksetzen' -breite 140 -hoehe 140 -xPos 520 -yPos 200 -png 'gui\reset.png' -bgcolor 'white'
+    $resetButton = knopf -name 'Komplette Umgebung zurücksetzen' -breite 140 -hoehe 140 -xPos 520 -yPos 200 -png "$BASISVERZEICHNIS\gui\reset.png" -bgcolor 'white'
     $resetButton.Add_Click( { $main_form.DialogResult = "Retry"; $main_form.Close } )
     
     $main_form.Controls.Add($importButton)
@@ -72,7 +75,7 @@ function main {
 #Pfad zu VBoxManage.exe und VirtualBox.exe
 $VBoxManage = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
 $VBoxGui = "C:\Program Files\Oracle\VirtualBox\VirtualBox.exe"
-$maschinen_basefolder = "V:\LFB-Netze\Linux\paedml7x"
+$maschinen_basefolder = $BASISVERZEICHNIS
 # bei direktstart ist das die bessere Wahl, bei EXE klappt das nicht.
 # $maschinen_basefolder = $PSScriptRoot
 
@@ -90,7 +93,7 @@ $HDDcontrollers.Add("win10-client-2","SATA")
 $HDDcontrollers.Add("adminvm","SATA") 
 
 # Konfiguration der leeren Maschinen
-$leeremaschinen_basefolder = "C:\LFB-Netze\Linux\paedml7x\Leere Maschinen"
+$leeremaschinen_basefolder = "$LEEREMASCHINEN_BASISVERZEICHNIS"
 $leeremaschine_ram = 2048
 $leeremaschine_grafikram = 128
 $leeremaschine_acpi = "on"
@@ -107,7 +110,6 @@ function knopf ([String]$name, [int]$breite, [int]$hoehe, [int]$xPos, [int]$yPos
   $tmpbutton.Location = New-Object System.Drawing.Size( $xPos, $yPos )
   $tmpbutton.Size = New-Object System.Drawing.Size($breite, $hoehe)
   $tmpbutton.BackColor = $bgcolor
-  
   If (Test-Path $png ) {$tmpbutton.Image = [System.Drawing.Image]::FromFile($png)} else { $tmpbutton.Text = $name }
 
   return $tmpbutton
@@ -180,7 +182,7 @@ function removeWindowsClients {
        Write-Host ":::: VM deregistrieren" -ForegroundColor DarkGreen
        & $vboxmanage unregistervm $leeremaschine 2>$null
        Write-Host ":::: Verzeichnis lÃ¶schen" -ForegroundColor DarkGreen
-       Remove-Item -Path "C:\LFB-Netze\Linux\paedml7x\$leeremaschine" -Recurse 2>$null
+       Remove-Item -Path "$LEEREMASCHINEN_BASISVERZEICHNIS\$leeremaschine" -Recurse 2>$null
        Write-Host ":: Fertig" -ForegroundColor Green
   }
 }
@@ -197,7 +199,10 @@ function registerMasterVMs {
         # Setzen des Controllers:
         if ( $hddcontroller -eq $null ) { $hddcontroller = "LsiLogic" } else {$hddcontroller = $HDDcontrollers.get_Item($maschine) } 
         Write-Host ":: HDD-Controller von $maschine ist $hddcontroller" -ForegroundColor Green
-        & $VboxManage storageattach "$maschine" --storagectl "$hddcontroller" --device 0 --port 0 --type hdd --medium "$maschinen_basefolder/$maschine/$maschine-disk1.vdi" 
+        $mediumpath="$maschinen_basefolder/$maschine/$maschine-disk1.vdi"
+        If (Test-Path $mediumpath ) {
+         & $VboxManage storageattach "$maschine" --storagectl "$hddcontroller" --device 0 --port 0 --type hdd --medium "$mediumpath" 
+        }
         Write-Host ":: $machine fertig" -ForegroundColor Green
     }
     # OPSI zusätzlich Platte 2
@@ -206,6 +211,8 @@ function registerMasterVMs {
     $maschine = "opsi-server"
     $hddcontroller = "LsiLogic"
     & $VboxManage storageattach "$maschine" --storagectl "$hddcontroller" --device 0 --port 1 --type hdd --medium "$maschinen_basefolder/$maschine/$maschine-disk2.vdi" 
+
+    Snapshots -snapshotname "Auslieferungszustand" -action 1
 }
 
 function Snapshots {
@@ -224,6 +231,7 @@ function Snapshots {
 
 function VMunregister {
     Write-Host "Maschinen von VBOX entfernen..." -ForegroundColor Green
+    Snapshots -snapshotname "Auslieferungszustand" -action 0
     foreach($maschine in $maschinen) {
 	    # Registrierung aufheben, falls vm bereits in der Verwaltungskonsole vorhanden ist
         Write-Host ":: VM $maschine wird deregistriert..."
